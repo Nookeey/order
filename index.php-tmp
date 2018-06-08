@@ -1,0 +1,495 @@
+<?php opcache_reset();
+include ('php/connect.php');
+ob_start();
+?>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="js/jquery-3.2.1.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <title>Pyszne NH</title>
+<link rel="shortcut icon" href="../iconn.ico" />
+</head>
+<body>
+
+
+<?php
+
+if ((isset($_GET['s'])) && ($_GET['s'] == 'asdasdzasdasdasdasdasd')) {
+	$gets = $_GET['s'];
+	?>
+	<div class="container">
+	<?php
+	$stmt2 = $pdo->query('SELECT * FROM test_order');
+	$op    = $stmt2->fetch(PDO::FETCH_ASSOC);
+	?>
+	<div style="margin-top: 30px; font-size: 20px">
+	  <p>
+	  Zamawiajacy: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['zamawia']?></span>
+	  &#160;
+	&#160;
+	&#160;
+
+
+	  Skad:<span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['skad']?></span>
+	  &#160;
+	&#160;
+	&#160;
+
+	  Nr. Tel: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['tel']?></span>
+	  &#160;
+	&#160;
+	&#160;
+
+	  Deadline: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['deadline']?></span>
+	  &#160;
+	&#160;
+
+	  <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modalAdmin">edytuj</button>
+
+	  </p>
+
+	</div>
+	  <form class="form-inline" method="post" action="php/add_order.php" style="margin: 40px 0 0;">
+	    <div class="form-group">
+	      <label>Kto: </label>
+	      <input type="text" class="form-control" name="kto">
+	    </div>
+	    <div class="form-group">
+	      <label>Co: </label>
+	      <input type="text" class="form-control" name="co">
+	    </div>
+	    <div class="form-group">
+	      <label>Cena: </label>
+	      <input type="number" step="0.01" class="form-control" name="cena">
+	    </div>
+	    <input type="hidden" name="gets" value="<?=$gets;?>">
+	    <button type="submit" name="admin" class="btn btn-primary">Dodaj</button>
+	  </form>
+
+	</div>
+
+	<div class="container">
+	<?php
+	$suma = 0;
+	try
+	{
+
+		$stmt = $pdo->query('SELECT * FROM test_order WHERE status2 = 1 ORDER BY co');
+
+		$count                = $stmt->rowCount();
+		$count > 0?$przesylka = $op['przesylka']/$count:'';
+		$przesylka            = round($przesylka*10)/10;
+		?>
+		<table class="table" style="margin-top: 10px;">
+		        <thead>
+		          <tr>
+		            <th>Nr</th>
+		            <th>Kto</th>
+		            <th>&#160;</th>
+		            <th>Co</th>
+		            <th>Cena</th>
+		            <th>Z dostawa</th>
+		            <th>Zaplacil</th>
+		            <th>&#160;
+		&#160;
+		&#160;
+		&#160;
+		&#160;
+		&#160;
+		Opcje</th>
+		          </tr>
+		        </thead>
+		<?php
+		$i = 1;
+		foreach ($stmt as $row) {
+			?>
+			          <tr style=" <?=$row['status'] > 0?'color: #000':'color: #d43f3a; font-weight: bold'?>">
+			            <td><?=$i?></td>
+			            <td id="kto<?=$row['id']?>"><?=$row['kto']?></td>
+			            <td><input type="checkbox"></td>
+			            <td id="co<?=$row['id']?>"><?=$row['co']?></td>
+			            <td id="cena<?=$row['id']?>"><?=$row['cena']?></td> <?php $suma += $row['cena']?>
+			            <td><?=round($row['cena']+$przesylka, 1).' zł'?></td> <?php $sumap += $row['cena']+$przesylka;?>
+			<td>
+			<?php if ($row['status'] > 0) {?>
+				                    <a href="php/zaplacil.php?id=<?=$row['id']?>&status=0&s=<?=$gets;?>"><button class="btn btn-primary btn-xs" >&#160;
+				&#160;
+				TAK&#160;
+				&#160;
+				</button></a>
+				<?php } else {?>
+				                    <a href="php/zaplacil.php?id=<?=$row['id']?>&status=1&s=<?=$gets;?>"><button class="btn btn-danger btn-xs" >&#160;
+				&#160;
+				NIE&#160;
+				&#160;
+				&#160;
+				</button></a>
+				<?php }?>
+			            </td>
+			            <td><button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modalEdit" onclick="myFunction(<?=$row['id']?>);" >edit</button>&#160;
+			&#160;
+			&#160;
+			<a href="php/del.php?id=<?=$row['id']?>&s=<?=$gets;?>" class="btn btn-danger btn-xs" >usun</a></td>
+
+			          </tr>
+
+			<?php
+			$i++;
+		}
+		$stmt->closeCursor();
+		?>
+		      </table>
+		      <hr>
+		      <h4>Suma: <span style="color: #d43f3a"><?=$suma?></span></h4>
+		      <h4>Suma (z dostawa): <span style="color: #d43f3a"><?=round($sumap, 1)?></span></h4>
+
+		      <form class="form-inline" method="post" action="php/edit.php">
+		        <div class="form-group">
+		          <label>Dostawa: </label>
+		          <input type="hidden" name="gets" value="<?=$gets;?>">
+		          <input type="number" step="0.01" class="form-control" name="przesylka" value="<?=$op['przesylka']?>">
+		          <button type="submit" class="btn btn-primary">update</button>
+		        </div>
+		      </form>
+
+
+		      <form class="form-inline" method="post" action="php/statusZamowienia.php" style="margin: 20px 0 0;">
+		        <div class="form-group">
+		          <label>Info: </label>
+		          <input type="text" class="form-control" name="status3" value="<?=$op['status3']?>">
+		        </div>
+		        <input type="hidden" name="gets" value="<?=$gets;?>">
+		        <button type="submit" class="btn btn-primary">Dodaj</button>
+		      </form>
+
+
+		      <hr>
+		      <h3>Do akceptacji</h3>
+		      <table class="table" style="margin-top: 10px;">
+		        <thead>
+		          <tr>
+		            <th>Kto</th>
+		            <th>Co</th>
+		            <th>Cena</th>
+		            <th>Z dostawa</th>
+		            <th>Zaplacil</th>
+		            <th>&#160;
+		&#160;
+		&#160;
+		&#160;
+		&#160;
+		&#160;
+		Opcje</th>
+		          </tr>
+		        </thead>
+
+		<?php
+
+		$stmt = $pdo->query('SELECT * FROM test_order WHERE status2 = 0 ORDER BY co');
+		foreach ($stmt as $row) {
+			?>
+			          <tr style=" <?=$row['status'] > 0?'color: #000':'color: #d43f3a; font-weight: bold'?>">
+			            <td id="kto<?=$row['id']?>"><?=$row['kto']?></td>
+			            <td id="co<?=$row['id']?>"><?=$row['co']?></td>
+			            <td id="cena<?=$row['id']?>"><?=$row['cena']?></td> <?php $suma += $row['cena']?>
+			            <td><?=round($row['cena']+$przesylka, 1).' zł'?></td> <?php $sumap += $row['cena']+$przesylka;?>
+			<td>
+			<?php if ($row['status'] > 0) {?>
+				                    <a href="php/zaplacil.php?id=<?=$row['id']?>&status=0&s=<?=$gets;?>"><button class="btn btn-primary btn-xs" >&#160;
+				&#160;
+				TAK&#160;
+				&#160;
+				</button></a>
+				<?php } else {?>
+				                    <a href="php/zaplacil.php?id=<?=$row['id']?>&status=1&s=<?=$gets;?>"><button class="btn btn-danger btn-xs" >&#160;
+				&#160;
+				NIE&#160;
+				&#160;
+				</button></a>
+				<?php }?>
+			            </td>
+			            <td><button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modalEdit" onclick="myFunction(<?=$row['id']?>);" >edit</button>&#160;
+			&#160;
+			&#160;
+			<a href="php/del.php?id=<?=$row['id']?>&s=<?=$gets;?>" class="btn btn-danger btn-xs" >usun</a>&#160;
+			&#160;
+			&#160;
+			<a href="php/akceptuj.php?id=<?=$row['id']?>&s=<?=$gets;?>" class="btn btn-success btn-xs" >akceptuj</a></td>
+			          </tr>
+
+			<?php
+		}
+		$stmt->closeCursor();
+		?>
+		</table>
+
+		<?php
+	}
+	 catch (PDOException $e) {
+		echo 'Połączenie nie mogło zostać utworzone: '.$e->getMessage();
+	}
+	?>
+	</div>
+	<!-- ===== MODAL ===== -->
+	<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="modalEdit">
+	  <div class="modal-dialog modal-lg" role="document">
+	    <div class="modal-content ">
+	      <form class="form-inline" method="post" action="php/edycja.php"  style="margin:30px" >
+
+	        <div class="form-group">
+	          <label for="kto">Kto:</label>
+	          <input id="inputKto" type="text" class="form-control" name="kto" value="">
+	        </div>
+	        <div class="form-group">
+	          <label for="co">Co: </label>
+	          <input id="inputCo" type="text" class="form-control" name="co" value="">
+	        </div>
+	        <div class="form-group">
+	          <label for="cena">Cena: </label>
+	          <input id="inputCena" type="number" step="0.01" class="form-control" name="cena" value="">
+	        </div>
+
+	        <input id="inputGets" type="hidden" name="gets" value="<?=$gets?>">
+	        <input id="inputId" type="hidden" name="id" value="">
+	        <button type="submit" name="admin" class="btn btn-primary">Dodaj</button>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+	<!-- ===== MODAL ADMIN ===== -->
+	<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="modalAdmin">
+	  <div class="modal-dialog modal-lg" role="document">
+	    <div class="modal-content ">
+	      <form class="form-inline" method="post" action="php/editAdmin.php"  style="margin:30px" >
+
+	        <div class="form-group">
+	          <label for="zamawia">Zamawia:</label>
+	          <input type="text" class="form-control" name="zamawia" value="<?=$op['zamawia']?>" >
+	        </div>
+	        <div class="form-group">
+	          <label for="skad">Skad: </label>
+	          <input type="text" class="form-control" name="skad" value="<?=$op['skad']?>">
+	        </div>
+	        <div class="form-group">
+	          <label for="tel">Nr tel: </label>
+	          <input type="tel" class="form-control" name="tel" value="<?=$op['tel']?>">
+	        </div>
+	        <div class="form-group">
+	          <label for="deadline">Deadline </label>
+	          <input type="text" class="form-control" name="deadline" value="<?=$op['deadline']?>">
+	        </div>
+
+	        <input id="inputGets" type="hidden" name="gets" value="<?=$gets?>">
+	        <input id="inputId" type="hidden" name="id">
+	        <button type="text" name="admin" class="btn btn-primary">Dodaj</button>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+	<script>
+	  function myFunction(id) {
+
+	    var kto = document.getElementById("kto"+id).innerHTML;
+	    var co = document.getElementById("co"+id).innerHTML;
+	    var cena = document.getElementById("cena"+id).innerHTML;
+
+	    document.getElementById('inputKto').value = kto;
+	    document.getElementById('inputCo').value = co;
+	    document.getElementById('inputCena').value = cena;
+	    document.getElementById('inputId').value = id;
+
+	  }
+
+	</script>
+
+	<?php } else {
+	// ====================================
+	// ============== USER ================
+	// ====================================
+	?>
+	<div class="container">
+	<?php
+	$stmt2 = $pdo->query('SELECT * FROM test_order');
+	$op    = $stmt2->fetch(PDO::FETCH_ASSOC);
+	?>
+	<div style="margin-top: 30px; font-size: 20px">
+	  <p>
+	  Zamawiajacy: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['zamawia']?></span>
+	  &#160;
+	&#160;
+	&#160;
+
+
+	  Skad:<span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['skad']?></span>
+	  &#160;
+	&#160;
+	&#160;
+
+	  Nr. Tel: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['tel']?></span>
+
+	  &#160;
+	&#160;
+	&#160;
+
+	  Deadline: <span style="color: #d43f3a; font-weight: bold; font-size: 26px">
+	<?=$op['deadline']?></span>
+	  </p>
+	</div>
+
+	  <form class="form-inline" method="post" action="php/add_order.php" style="margin: 40px 0 0;">
+	    <div class="form-group">
+	      <label>Imie: </label>
+	      <input type="text" class="form-control" name="kto" required>
+	    </div>
+	    <div class="form-group">
+	      <label>Co: </label>
+	      <input type="text" class="form-control" name="co" required>
+	    </div>
+	    <div class="form-group">
+	      <label>Cena: </label>
+	      <input type="number" step="0.01" class="form-control" name="cena" required>
+	    </div>
+	    <button type="submit" name="user" onclick="myFunction()" class="btn btn-primary">Dodaj</button>
+	  </form>
+
+	</div>
+
+	<div class="container">
+	<?php
+	$suma = 0;
+	try
+	{
+
+		$stmt = $pdo->query('SELECT * FROM test_order WHERE status2 = 1 ORDER BY co');
+
+		$count                = $stmt->rowCount();
+		$count > 0?$przesylka = $op['przesylka']/$count:'';
+		$przesylka            = round($przesylka*10)/10;
+		?>
+		<table class="table" style="margin-top: 10px;">
+		        <thead>
+		          <tr>
+		            <th>Nr</th>
+		            <th>Imie</th>
+		            <th>Co</th>
+		            <th>Cena</th>
+		            <th>Z dostawa</th>
+		            <th>Zaplacil</th>
+		          </tr>
+		        </thead>
+		<?php
+
+		$i = 1;
+		foreach ($stmt as $row) {
+			?>
+			          <tr style=" <?=$row['status'] > 0?'color: #000':'color: #d43f3a; font-weight: bold'?>">
+			            <td><?=$i?></td>
+			            <td id="kto<?=$row['id']?>"><?=$row['kto']?></td>
+			            <td id="co<?=$row['id']?>"><?=$row['co']?></td>
+			            <td id="cena<?=$row['id']?>"><?=$row['cena']?></td> <?php $suma += $row['cena']?>
+			            <td><?=round($row['cena']+$przesylka, 1).' zł'?></td> <?php $sumap += $row['cena']+$przesylka;?>
+			<td>
+			<?php if ($row['status'] > 0) {?>
+				<button class="btn btn-primary btn-xs" >&#160;
+				&#160;
+				TAK&#160;
+				&#160;
+				</button>
+				<?php } else {?>
+				<button class="btn btn-danger btn-xs" >&#160;
+				&#160;
+				NIE&#160;
+				&#160;
+				</button>
+				<?php }?>
+			</td>
+			          </tr>
+
+			<?php
+			$i++;
+		}
+		$stmt->closeCursor();
+		?>
+		      </table>
+		      <hr>
+		      <h4>Suma: <span style="color: #d43f3a"><?=$suma?></span>&#160;zł</h4>
+		      <h4>Suma (z dostawa): <span style="color: #d43f3a"><?=round($sumap, 1)?></span>&#160;zł</h4>
+		      <h4>Dostawa: <?=$op['przesylka']?> zł</h4>
+		      <h3>Info: <?=$op['status3']?></h3>
+
+
+		<?php
+	}
+	 catch (PDOException $e) {
+		echo 'Połączenie nie mogło zostać utworzone: '.$e->getMessage();
+	}
+	?>
+	</div>
+	<!-- ===== MODAL ===== -->
+	<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="modalEdit">
+	  <div class="modal-dialog modal-lg" role="document">
+	    <div class="modal-content ">
+	      <form class="form-inline" method="post" action="php/edycja.php"  style="margin:30px" >
+
+	        <div class="form-group">
+	          <label for="kto">Kto:</label>
+	          <input id="inputKto" type="text" class="form-control" name="kto" value="">
+	        </div>
+	        <div class="form-group">
+	          <label for="co">Co: </label>
+	          <input id="inputCo" type="text" class="form-control" name="co" value="">
+	        </div>
+	        <div class="form-group">
+	          <label for="cena">Cena: </label>
+	          <input id="inputCena" type="number" step="0.01" class="form-control" name="cena" value="">
+	        </div>
+
+	        <input id="inputId" type="hidden" name="id" value="">
+	        <button type="submit" name="user" class="btn btn-primary">Dodaj</button>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+	<script>
+	  function myFunction(id) {
+
+	    var kto = document.getElementById("kto"+id).innerHTML;
+	    var co = document.getElementById("co"+id).innerHTML;
+	    var cena = document.getElementById("cena"+id).innerHTML;
+
+	    document.getElementById('inputKto').value = kto;
+	    document.getElementById('inputCo').value = co;
+	    document.getElementById('inputCena').value = cena;
+	    document.getElementById('inputId').value = id;
+
+	  }
+	</script>
+
+	<script>
+	  function myFunction() {
+	      alert("Twoje zamowienie zostalo przekazane do <?=$op['zamawia']?>");
+	  }
+	</script>
+
+
+	<?php
+	ob_end_flush();
+}?>
+</body>
+</html>
+
+

@@ -1,0 +1,56 @@
+#clockdiv { font-family: sans-serif; color: #000; display: inline-block; font-weight: 100; text-align: center; font-size: 18px; }
+#clockdiv > div { padding: 10px; border-radius: 3px; background: #00BF96; display: inline-block; font-weight: bold; }
+#clockdiv div > span { /*padding: 15px;*/ border-radius: 3px; background: #00BF96; display: inline-block; }
+
+* { font-size: 14px !important; }
+.form-control { font-size: 14px; }
+.list-group { margin-top: 50px; }
+
+.bae { margin-top: 2px; }
+
+.tdu1 { width: 5%; }
+.tdu2 { width: 10%; }
+.tdu3 { width: 40%; }
+.tdu4 { width: 10%; }
+.tdu5 { width: 10%; }
+.tdu6 { width: 5%; }
+.tda6 { width: 5%; }
+.tda7 { width: 20%; }
+
+.modal.fade .modal-dialog { margin-top: 200px; }
+.modal-backdrop.fade {background: #000; opacity: 0.7; }
+
+#formLogin { margin-top: 100px; }
+
+#btnLogOut { width: 100%; margin-bottom: 10px; }
+
+/* ========== DODAJ ========== */
+
+section.dodaj { margin: 50px 0;  }
+section.dodaj .baddu { width: 100%; margin-top: 28px; line-height: 1.3em;}
+section.dodaj #info { margin-top: 20px; text-align: center; }
+section.dodaj .alert { margin-bottom: 0; }
+
+/* ========== ZAMOWIENIA ========== */
+
+section.newOrders { margin: 50px 0; }
+section.newOrders p.tno{ font-size: 24px !important; }
+
+
+
+/* SWITCH */
+.switch {position: relative; top: 15px; left: 10px; display: inline-block; width: 60px; height: 24px; }
+.switch input {display:none;}
+
+.slider {position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; }
+.slider:before {position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; }
+input:checked + .slider {background-color: #2196F3; }
+
+input:focus + .slider {box-shadow: 0 0 1px #2196F3; }
+input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transform: translateX(26px); transform: translateX(26px); }
+/* Rounded sliders */
+.slider.round {border-radius: 34px; }
+.slider.round:before {border-radius: 50%; }
+
+
+#inputDostawa { max-width: 110px; border: none; }
